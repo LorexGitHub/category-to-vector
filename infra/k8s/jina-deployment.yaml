@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jina-model
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jina
+  template:
+    metadata:
+      labels:
+        app: jina
+    spec:
+      containers:
+      - name: jina
+        image: lorexdocker/embedding-service:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_NAME
+          value: "jina"
+        - name: PYTHONUNBUFFERED
+          value: "1"

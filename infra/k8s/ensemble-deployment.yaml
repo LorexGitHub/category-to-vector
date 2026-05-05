@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ensemble-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ensemble
+  template:
+    metadata:
+      labels:
+        app: ensemble
+    spec:
+      containers:
+        - name: ensemble
+          image: lorexdocker/ensemble-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          volumeMounts:
+            - name: datasets-volume
+              mountPath: /app/datasets.json
+              subPath: datasets.json
+              readOnly: true
+      volumes:
+        - name: datasets-volume
+          configMap:
+            name: datasets-config

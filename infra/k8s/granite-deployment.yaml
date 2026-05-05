@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: granite-model
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: granite
+  template:
+    metadata:
+      labels:
+        app: granite
+    spec:
+      containers:
+      - name: granite
+        image: lorexdocker/embedding-service:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_NAME
+          value: "granite"
+        - name: PYTHONUNBUFFERED
+          value: "1"

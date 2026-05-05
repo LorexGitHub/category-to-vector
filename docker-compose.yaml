@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  granite:
+    build: .
+    image: embedding-service
+    ports:
+      - "8001:8000"
+    environment:
+      - MODEL_NAME=granite
+      - PYTHONUNBUFFERED=1
+
+  #qwen3:
+  #  image: embedding-service
+  #  ports:
+  #    - "8002:8000"
+  #  environment:
+  #    - MODEL_NAME=qwen3
+  #    - PYTHONUNBUFFERED=1
+
+  #nemotron:
+  #  image: embedding-service
+  #  ports:
+  #    - "8003:8000"
+  #  environment:
+  #    - MODEL_NAME=nemotron
+  #    - PYTHONUNBUFFERED=1
+
+  jina:
+    image: embedding-service
+    ports:
+      - "8004:8000"
+    environment:
+      - MODEL_NAME=jina
+      - PYTHONUNBUFFERED=1
+
+  harrier:
+    image: embedding-service
+    ports:
+      - "8005:8000"
+    environment:
+      - MODEL_NAME=harrier
+      - PYTHONUNBUFFERED=1
+
+  ensemble:
+    build:
+      context: .
+      dockerfile: Dockerfile.ensemble
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - granite
+      - harrier
+      #- qwen3
+      #- nemotron
+      - jina
