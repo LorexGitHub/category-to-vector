@@ -5,7 +5,6 @@ _model = None
 def get_model():
     global _model
     if _model is None:
-        # Preserving the specific model_kwargs from your snippet
         _model = SentenceTransformer(
             "microsoft/harrier-oss-v1-270m", 
             model_kwargs={"dtype": "auto"}
@@ -14,12 +13,10 @@ def get_model():
 
 def encode_categories(categories):
     model = get_model()
-    # Documents/categories do not need the prompt
     return model.encode(categories)
 
 def encode_query(query):
     model = get_model()
-    # Queries specifically use the "web_search_query" prompt
     return model.encode(query, prompt_name="web_search_query")
 
 if __name__ == "__main__":
