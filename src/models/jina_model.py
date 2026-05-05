@@ -14,12 +14,10 @@ def get_model():
 
 def encode_categories(categories):
     model = get_model()
-    # Use task="text-matching" for category similarity
     return model.encode(categories, task="text-matching")
 
 def encode_query(query):
     model = get_model()
-    # Wrap query in list for consistent return shape
     return model.encode(query, task="text-matching")
 
 if __name__ == "__main__":
@@ -38,7 +36,6 @@ if __name__ == "__main__":
     print(f"{'Category':<12} | {'Score':<8} | Vector (first 8 dims)")
     print("-" * 60)
     
-    # Sort by score descending
     results = sorted(zip(categories, cos_scores.tolist(), embeddings), key=lambda x: x[1], reverse=True)
     
     for cat, score, emb in results:
