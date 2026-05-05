@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/b8ce2cf8-4d3c-484c-b727-31c9ba45409f
 In Natural Language Processing, different embedding models capture different semantic nuances. An e-commerce search query like "apple" might map closer to "fruit" in one model, and closer to "laptops" in another. Relying on a single model can create blind spots in search engines or recommendation systems.
 
 ### 💡 The Solution
-This project provides an Ensemble Embedding API that runs up to 5 (currently 3 and more are planned) distinct embedding models simultaneously as isolated Kubernetes pods. By sending a single query to the ensemble, you can instantly compare how each model interprets the text relative to a pre-loaded database of categories, allowing you to choose the best model for your specific domain.
+This project provides an Ensemble Embedding API that runs up to 5 (currently 3 and more are planned) distinct embedding models simultaneously as isolated Kubernetes pods. By sending a single query to the ensemble, you can instantly compare how each model interprets the text relative to a pre-loaded dataset of categories, allowing you to choose the best model for your specific domain.
 
 ### 🤖 The Models 
 This project leverages sentence-transformers to host the following models: 
