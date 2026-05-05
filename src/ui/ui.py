@@ -29,7 +29,6 @@ if st.button("Compare Models", type="primary", use_container_width=True):
     else:
         with st.spinner(f"Querying models using the '{selected_dataset}' dataset..."):
             try:
-                # Send the dataset name to the new DB endpoint!
                 response = requests.post(
                     "http://localhost:8000/compare-all-db",
                     json={"dataset_name": selected_dataset, "query": query},
