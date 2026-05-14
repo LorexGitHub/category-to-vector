@@ -74,7 +74,8 @@ async def compare_all_models_db(request: CompareDBRequest):
             top_pick = data["results"][0]
             ensemble_results[model_name] = {
                 "top_category": top_pick["category"],
-                "score": top_pick["score"]
+                "score": top_pick["score"],
+                "vector_preview": top_pick.get("vector_preview", [])
             }
         except Exception as e:
             ensemble_results[model_name] = {"error": f"JSON Parse Error: {str(e)}"}

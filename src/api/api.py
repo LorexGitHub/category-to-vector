@@ -34,8 +34,12 @@ async def compare(request: CompareRequest):
     cos_scores = util.cos_sim(query_embedding, category_embeddings)[0]
 
     results = []
-    for cat, score in zip(request.categories, cos_scores.tolist()):
-        results.append({"category": cat, "score": score})
+    for idx, (cat, score) in enumerate(zip(request.categories, cos_scores.tolist())):
+        results.append({
+            "category": cat, 
+            "score": score,
+            "vector_preview": category_embeddings[idx][:8].tolist() 
+        })
 
     results.sort(key=lambda x: x["score"], reverse=True)
 

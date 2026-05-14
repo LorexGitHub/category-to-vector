@@ -15,6 +15,7 @@ spec:
       containers:
       - name: granite
         image: lorexdocker/embedding-service:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8000
         env:

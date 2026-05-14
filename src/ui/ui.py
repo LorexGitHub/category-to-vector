@@ -45,6 +45,7 @@ if st.button("Compare Models", type="primary", use_container_width=True):
                     model_names = list(data["ensemble_comparison"].keys())
                     cols = st.columns(len(model_names))
                     
+                    # draw model columns
                     for idx, model_name in enumerate(model_names):
                         with cols[idx]:
                             result = data["ensemble_comparison"][model_name]
@@ -56,6 +57,15 @@ if st.button("Compare Models", type="primary", use_container_width=True):
                                 st.metric(label="Top Match", value=result["top_category"])
                                 st.progress(min(result["score"] / 1.0, 1.0))
                                 st.write(f"**Cosine Score:** `{result['score']:.4f}`")
+                                # number vector display
+                                with st.expander("🧮 View Raw Vectors"):
+                                    st.write("**Category Vector (First 8 dims)**")
+                                    vector_data = result.get("vector_preview", [])
+                                    if vector_data:
+                                        formatted_vector = [round(v,4) for v in vector_data]
+                                        st.code(str(formatted_vector), language="python")
+                                    else:
+                                        st.write("No vector preview available.")
                             
             except requests.exceptions.RequestException as e:
                 st.error("🚨 **Could not connect to the Ensemble API.** Make sure your K8s port-forward is running!")

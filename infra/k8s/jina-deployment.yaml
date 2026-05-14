@@ -15,6 +15,7 @@ spec:
       containers:
       - name: jina
         image: lorexdocker/embedding-service:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8000
         env:
