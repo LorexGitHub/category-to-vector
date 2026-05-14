@@ -1,28 +1,74 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="Ensemble Embedding Viewer", page_icon="🧠")
+st.set_page_config(page_title="Ensemble Embedding Viewer", page_icon="🧠", layout="wide")
 
 st.title("🧠 Ensemble Embedding Viewer")
-st.markdown("Compare how different embedding models interpret the same text relative to a pre-loaded dataset.")
+st.markdown("Compare how different embedding models interpret text")
 
-# 1. Fetch the available datasets from the Kubernetes API
-try:
-    datasets_response = requests.get("http://localhost:8000/datasets", timeout=5)
-    available_datasets = datasets_response.json().get("available_datasets", [])
-except:
-    available_datasets = []
+API_URL = "http://localhost:8000"
 
-if not available_datasets:
-    st.error("🚨 Could not load datasets. Is the K8s port-forward running?")
+# ==========================================
+# SIDEBAR: DYNAMIC DATASET MANAGEMENT
+# ==========================================
+with st.sidebar:
+    st.header("⚙️ Manage Datasets")
+    
+    # Fetch the list of datasets
+    try:
+        datasets_response = requests.get(f"{API_URL}/datasets", timeout=5)
+        available_datasets = datasets_response.json().get("available_datasets", [])
+    except:
+        available_datasets = []
 
-# 2. Create a dropdown to select the dataset
-selected_dataset = st.selectbox("Select a Dataset:", available_datasets)
+    if not available_datasets:
+        st.error("🚨 Could not load datasets. Is the K8s port-forward running?")
+        st.stop()
 
-# 3. Text input for the query
+    selected_dataset = st.selectbox("Select a Dataset:", available_datasets)
+
+    # Fetch categories for the selected dataset
+    if selected_dataset:
+        try:
+            cat_response = requests.get(f"{API_URL}/datasets/{selected_dataset}", timeout=5)
+            current_categories = cat_response.json().get("categories", [])
+        except:
+            current_categories = []
+
+        st.write(f"**Current Categories ({len(current_categories)}):**")
+        st.write(", ".join(current_categories) if current_categories else "No categories found.")
+
+        st.divider()
+
+        # --- ADD CATEGORY ---
+        st.subheader("➕ Add Category")
+        new_cat = st.text_input("New category name:", key="add_cat")
+        if st.button("Add Category"):
+            if new_cat and new_cat not in current_categories:
+                updated_list = current_categories + [new_cat]
+                requests.post(f"{API_URL}/datasets/{selected_dataset}", json={"categories": updated_list}, timeout=5)
+                st.success(f"Added '{new_cat}'!")
+                st.rerun() # Force UI to refresh
+            elif new_cat in current_categories:
+                st.warning("Category already exists!")
+
+        # --- REMOVE CATEGORY ---
+        st.subheader("➖ Remove Category")
+        if current_categories:
+            cat_to_remove = st.selectbox("Select category to remove:", current_categories, key="rem_cat")
+            if st.button("Remove Category"):
+                updated_list = [c for c in current_categories if c != cat_to_remove]
+                requests.post(f"{API_URL}/datasets/{selected_dataset}", json={"categories": updated_list}, timeout=5)
+                st.success(f"Removed '{cat_to_remove}'!")
+                st.rerun() # Force UI to refresh
+
+# ==========================================
+# MAIN PAGE: MODEL COMPARISON
+# ==========================================
+st.divider()
+
 query = st.text_input("Enter your search query:", "Which brand is known for environmental sustainability?")
 
-# 4. Submit button
 if st.button("Compare Models", type="primary", use_container_width=True):
     if not query or not selected_dataset:
         st.warning("Please enter a query and select a dataset.")
@@ -30,7 +76,7 @@ if st.button("Compare Models", type="primary", use_container_width=True):
         with st.spinner(f"Querying models using the '{selected_dataset}' dataset..."):
             try:
                 response = requests.post(
-                    "http://localhost:8000/compare-all-db",
+                    f"{API_URL}/compare-all-db",
                     json={"dataset_name": selected_dataset, "query": query},
                     timeout=120
                 )
@@ -45,7 +91,6 @@ if st.button("Compare Models", type="primary", use_container_width=True):
                     model_names = list(data["ensemble_comparison"].keys())
                     cols = st.columns(len(model_names))
                     
-                    # draw model columns
                     for idx, model_name in enumerate(model_names):
                         with cols[idx]:
                             result = data["ensemble_comparison"][model_name]
@@ -57,16 +102,17 @@ if st.button("Compare Models", type="primary", use_container_width=True):
                                 st.metric(label="Top Match", value=result["top_category"])
                                 st.progress(min(result["score"] / 1.0, 1.0))
                                 st.write(f"**Cosine Score:** `{result['score']:.4f}`")
-                                # number vector display
+                                
                                 with st.expander("🧮 View Raw Vectors"):
                                     vector_data = result.get("vector_preview", [])
                                     vector_size = result.get("vector_size", "Unknown")
+                                    
                                     if vector_data:
-                                        formatted_vector = [round(v,4) for v in vector_data]
-                                        st.write(f"**Category Vector (first 8 dims out of {vector_size} dims)**")
+                                        formatted_vector = [round(v, 4) for v in vector_data]
+                                        st.write(f"**Category Vector (first 8 dims out of {vector_size} dims):**")
                                         st.code(str(formatted_vector), language="python")
                                     else:
-                                        st.write("No vector preview available.")
+                                        st.write("Vector data unavailable.")
                             
             except requests.exceptions.RequestException as e:
                 st.error("🚨 **Could not connect to the Ensemble API.** Make sure your K8s port-forward is running!")

@@ -86,3 +86,28 @@ async def compare_all_models_db(request: CompareDBRequest):
         "dataset_used": request.dataset_name,
         "ensemble_comparison": ensemble_results
     }
+    
+# for dynamic dataset management
+@app.get("/datasets/{dataset_name}")
+def get_dataset_categories(dataset_name: str):
+    categories = DATASETS.get(dataset_name)
+    if categories is None:
+        return {"error": f"Dataset '{dataset_name}' not found."}
+    return {"dataset_name": dataset_name, "categories": categories}
+
+class UpdateDatasetRequest(BaseModel):
+    categories: list[str]
+
+@app.post("/datasets/{dataset_name}")
+def update_dataset(dataset_name: str, request: UpdateDatasetRequest):
+    # Update the in-memory dictionary
+    DATASETS[dataset_name] = request.categories
+    
+    # Save the changes back to the JSON file so they persist!
+    try:
+        with open("datasets.json", "w") as f:
+            json.dump(DATASETS, f, indent=4)
+    except Exception as e:
+        return {"error": f"Failed to save to file: {str(e)}"}
+
+    return {"message": f"Dataset '{dataset_name}' updated successfully", "categories": request.categories}
