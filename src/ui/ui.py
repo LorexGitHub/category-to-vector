@@ -59,10 +59,11 @@ if st.button("Compare Models", type="primary", use_container_width=True):
                                 st.write(f"**Cosine Score:** `{result['score']:.4f}`")
                                 # number vector display
                                 with st.expander("🧮 View Raw Vectors"):
-                                    st.write("**Category Vector (First 8 dims)**")
                                     vector_data = result.get("vector_preview", [])
+                                    vector_size = result.get("vector_size", "Unknown")
                                     if vector_data:
                                         formatted_vector = [round(v,4) for v in vector_data]
+                                        st.write(f"**Category Vector (first 8 dims out of {vector_size} dims)**")
                                         st.code(str(formatted_vector), language="python")
                                     else:
                                         st.write("No vector preview available.")

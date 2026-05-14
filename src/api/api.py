@@ -38,7 +38,8 @@ async def compare(request: CompareRequest):
         results.append({
             "category": cat, 
             "score": score,
-            "vector_preview": category_embeddings[idx][:8].tolist() 
+            "vector_preview": category_embeddings[idx][:8].tolist(),
+            "vector_size": len(category_embeddings[idx])
         })
 
     results.sort(key=lambda x: x["score"], reverse=True)
