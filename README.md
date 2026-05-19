@@ -6,7 +6,8 @@ A microservices-based API for benchmarking and comparing how different state-of-
 
 
 
-https://github.com/user-attachments/assets/b8ce2cf8-4d3c-484c-b727-31c9ba45409f
+https://github.com/user-attachments/assets/164a65d8-63bc-42c1-aca8-d4a9fa15b5c9
+
 
 
 
